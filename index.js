@@ -1,69 +1,71 @@
-const {gameOptions, againOptions} = require('./options')
+require('dotenv').config();
 
-const TelegramApi = require('node-telegram-bot-api')
+const { Telegraf } = require('telegraf');
 
-const token = '7159288090:AAGl1-_N908l74XzNyUSkPg3_UXTAQzvMyI'
+const bot = new Telegraf(process.env.BOT_TOKEN);
 
-const bot = new TelegramApi(token, {polling: true})
+const webAppUrl = 'https://dcg.ee/food';  // web-app
 
-const chats = {}
+// Обработчик команды /start для начала диалога с пользователем
+bot.command('start', async (ctx) => {
+  await ctx.reply('Hello! Im a DCG.EE store bot. Click on the button below to go to our web application.', {
+      reply_markup: {
+          keyboard: [
+              [{ text: 'Market', web_app: {url: webAppUrl}}]
+              ]
+          }
+      });
+});
 
-const startGame = async (chatId) => {
-    await bot.sendMessage(chatId, 'Сейчас я загаю Число от 0 до 9, а ты должен его угадать.');
-    const randomNumber = Math.floor(Math.random() * 10);  // floor - округления числа
-    chats[chatId] = randomNumber;
-    await bot.sendMessage(chatId, 'Отгадывай', gameOptions);
-}
+// Функция для получения счета на оплату на основе данных из сообщения
+const getInvoiceFromMessage = (chatId, message) => {
+  // Парсим данные из сообщения
+  const { items } = JSON.parse(message.web_app_data.data);
+  // Создаем массив товаров для счета
+  const prices = items.map(item => ({ 
+    label: `${item.name} x${item.quantity}`,
+    amount: item.price * item.quantity * 100 // Преобразуем цену в копейки и учитываем количество
+  }));
+  // Создаем объект счета на оплату
+  const invoice = {
+    chat_id: chatId,
+    provider_token: process.env.PROVIDER_TOKEN,
+    start_parameter: 'get_access',
+    title: 'DCG.EE ORDER', // Название продукта, 1-32 символа
+    description: 'secure card payment', // Описание продукта, 1-255 знаков
+    currency: 'EUR', // Трехбуквенный код валюты ISO 4217
+    prices: prices, // Преобразуем цену в копейки
+    payment_form_title: 'test payment form title',
+    payload: {
+      unique_id: `${chatId}_${Number(new Date())}`,
+      provider_token: process.env.PROVIDER_TOKEN 
+    }
+  };
+  
+  return invoice;
+};
 
-const start = () => {
-    bot.setMyCommands([
-        {command: '/start', description: 'Начальное приветствие'},
-        {command: '/info', description: 'Получить личные данные'},
-        {command: '/game', description: 'Игра угадай число'},
-    ])
-    
-    bot.on('message', async msg => {
-        // Ваш обработчик сообщений здесь
-        const text = msg.text;
-        const chatId = msg.chat.id;
-    
-        if (text === '/start') {
-            isStartCommandReceived = true;
-            await bot.sendSticker(chatId, 'https://tlgrm.ru/_/stickers/8eb/10f/8eb10f4b-8f4f-4958-aa48-80e7af90470a/51.webp');
-            return bot.sendMessage(chatId, 'Данный бот работает на JavaScript');
-        }
-    
-        if (text === '/info') {
-            const infoText = `Вот твои данные :: ${msg.from.first_name}, ${msg.from.last_name}, ${msg.from.id}`;
-            return bot.sendMessage(chatId, infoText);
-        }
 
-        if (text === '/game') {
-            return startGame(chatId);
-        }
+bot.use(Telegraf.log());
 
-        return bot.sendMessage(chatId, 'Я тебя не понимаю, выбери один из вариантов в Меню');
-    })  
+// Обработчик для данных от web-app
+bot.on('message', (ctx) => {
+  // Проверяем, содержит ли сообщение данные от web-app
+  if (ctx.message.web_app_data) {
+    // Получаем чат id
+    const chatId = ctx.message.chat.id;
+    // Получаем счет на оплату на основе данных из сообщения
+    const invoice = getInvoiceFromMessage(chatId, ctx.message);
+    // Отправляем счет на оплату
+    ctx.replyWithInvoice(invoice);
+  }
+});
 
-    bot.on('callback_query', async msg => {
-        //console.log(msg)
-        const data = msg.data;
-        const chatId = msg.message.chat.id;
+// Обработчик для успешного оформления заказа
+bot.on('pre_checkout_query', (ctx) => {
+  // Ответим подтверждением оформления заказа
+  ctx.answerPreCheckoutQuery(true);
+});
 
-        if (data === '/again') {
-            return startGame(chatId);
-        }
-        
-        if (data === chats[chatId]) {
-            return await bot.sendMessage(chatId, `Поздравляю, ты отгадал число ${chats[chatId]}`, againOptions);
-        } else {
-            return await bot.sendMessage(chatId, `Ты не угадал число, бот загадывал ${chats[chatId]}`, againOptions);
-        }
-
-        bot.sendMessage(chatId, `Ты выбрал число: ${data}`); // alt 096
-    })
-}
-
-start()
-// Выводим сообщение о том, что бот успешно запущен
-console.log('SERVER :: Телеграм бот успешно запущен.');  
+bot.launch();
+console.log("BOT IS RUNNING");

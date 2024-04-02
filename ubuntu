@@ -1,0 +1,47 @@
+sudo npm install -g n
+sudo n stable
+sudo n <version> (sudo n 14.17.0)
+node -v
+если версия осталась старая то hash -r
+и после node -v
+
+после все будет ок
+
+--------------
+
+sudo apt install screen
+новая сессия
+screen
+запуск приложения
+npm start
+
+выходим
+Оставить рабочим на фоне
+Ctrl + A, затем Ctrl + D
+список окон
+screen -ls
+присоединится
+screen -r номер (screen -r 21436)
+
+если не переключается
+screen -d -r номер
+screen -d номер
+
+создать сессию с именем
+screen -S name
+
+закрыть сессию, выбрал
+Ctrl+A, :quit
+
+запуск nginx и рестарт nginx
+sudo systemctl restart nginx
+проверка состояния запуска nginx
+sudo systemctl status nginx
+проверка состояния конфиг файлов nginx
+sudo nginx -t
+остановка nginx
+sudo systemctl stop nginx
+
+
+проверка на каких портах что запущено
+sudo lsof -i :80

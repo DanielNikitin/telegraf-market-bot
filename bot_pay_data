@@ -1,0 +1,77 @@
+1111
+{
+  "update_id": 437666732,
+  "pre_checkout_query": {
+    "id": "4445751023557582785",
+    "from": {
+      "id": 1035107072,
+      "is_bot": false,
+      "first_name": "DCG",
+      "username": "dcg_tallinn",
+      "language_code": "en"
+    },
+    "currency": "EUR",
+    "total_amount": 100,
+    "invoice_payload": "{\"unique_id\":\"1035107072_1711349554991\",\"provider_token\":\"350862534:LIVE:YWU0YjcyNGRkYmFm\"}"
+  }
+}
+{
+  "update_id": 437666733,
+  "message": {
+    "message_id": 1056,
+    "from": {
+      "id": 1035107072,
+      "is_bot": false,
+      "first_name": "DCG",
+      "username": "dcg_tallinn",
+      "language_code": "en"
+    },
+    "chat": {
+      "id": 1035107072,
+      "first_name": "DCG",
+      "username": "dcg_tallinn",
+      "type": "private"
+    },
+    "date": 1711349569,
+    "successful_payment": {
+      "currency": "EUR",
+      "total_amount": 100,
+      "invoice_payload": "{\"unique_id\":\"1035107072_1711349554991\",\"provider_token\":\"350862534:LIVE:YWU0YjcyNGRkYmFm\"}",
+      "telegram_payment_charge_id": "7159288090_1035107072_275657",
+      "provider_payment_charge_id": "ch_3Oy7OjP9lLnwPkwI0BxL1314"
+    }
+  }
+}
+
+
+
+/start 
+1111
+
+{
+  "update_id": 437666739,
+  "message": {
+    "message_id": 1063,
+    "from": {
+      "id": 1035107072,
+      "is_bot": false,
+      "first_name": "DCG",
+      "username": "dcg_tallinn",
+      "language_code": "en"
+    },
+    "chat": {
+      "id": 1035107072,
+      "first_name": "DCG",
+      "username": "dcg_tallinn",
+      "type": "private"
+    },
+    "date": 1711532665,
+    "web_app_data": {
+      "button_text": "Web App",
+      "data": "{\"items\":[{\"id\":6,\"name\":\"Water 0.5L\",\"price\":1,\"quantity\":1}],\"totalPrice\":1}"
+    }
+  }
+}
+
+after paying
+
